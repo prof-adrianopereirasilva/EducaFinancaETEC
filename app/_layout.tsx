@@ -1,46 +1,56 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Slot } from 'expo-router';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 2000);
+    const timer = setTimeout(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }).start(() => setShowSplash(false));
+    }, 2000);
+
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <>
-      <AnimatePresence>
-        {showSplash && (
-          <motion.div
-            key="splash"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100vh',
-              background: '#1976d2',
-              color: '#fff',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100%',
-              zIndex: 9999,
-            }}
-          >
-            <h1>EducaFinança ETEC</h1>
-            <p>Carregando...</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {!showSplash && <Slot />}
+      {showSplash ? (
+        <Animated.View style={[styles.splashContainer, { opacity: fadeAnim }]}>
+          <Text style={styles.title}>EducaFinança ETEC</Text>
+          <Text style={styles.subtitle}>Carregando...</Text>
+        </Animated.View>
+      ) : (
+        <Slot />
+      )}
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  splashContainer: {
+    flex: 1,
+    backgroundColor: '#1976d2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 9999,
+  },
+  title: {
+    fontSize: 28,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#fff',
+    marginTop: 10,
+  },
+});
