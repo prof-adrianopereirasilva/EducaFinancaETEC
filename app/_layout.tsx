@@ -13,7 +13,7 @@ export default function RootLayout() {
         duration: 800,
         useNativeDriver: true,
       }).start(() => setShowSplash(false));
-    }, 2000);
+    }, 7000);
 
     return () => clearTimeout(timer);
   }, []);
